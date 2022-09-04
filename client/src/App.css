@@ -1,0 +1,65 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+}
+
+.App {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.boxUser {
+  flex-direction: row;
+  justify-content: center;
+}
+
+.divUsers {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.divUsers > ul {
+  justify-content: space-between;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.divUsers > ul > li {
+  cursor: pointer;
+  border: 1px solid white;
+  margin-top: 10px;
+}
+
+.divMessages {
+  display: flex;
+  flex-direction: column;
+}
+
+.divMessages > ul {
+  width: 100%;
+  list-style: none;
+  border: 1px solid white;
+}
+
+.divMessages > ul > li {
+  text-align: left;
+}
+
+.divMessages > ul > li.you {
+  text-align: right;
+  color: greenyellow;
+}
+
+.controlMsg {
+  display: flex;
+  flex-direction: row;
+}
