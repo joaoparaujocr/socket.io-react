@@ -14,7 +14,7 @@ function App() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messageContent, setMessageContent] = useState("");
-  const [arrivalMessage, setArrivalMessage] = useState()
+  const [arrivalMessage, setArrivalMessage] = useState(null);
   
   const sendUsername = () => {
     setUsernameAlreadySelected(usernameValue);
@@ -50,8 +50,6 @@ function App() {
     return user.username === selectedUser?.username;
   }
 
-  const returnOnUsers = () => onlineUsers;
-
   useEffect(() => {
     socket.on("users", (users) => {
       const usersFormat = users.map(user => {
@@ -84,29 +82,47 @@ function App() {
       }
     });
 
-    socket.on("private message", ({ content, from, id }) => {
-      for (let i = 0; i < onlineUsers.length; i++) {
-        const hasMessage = onlineUsers[i].messages.some(mes => {
-          return mes.id === id;
-        });
-        const user = onlineUsers[i];
-        if (user.userID === from && !(hasMessage)) {
-          user.messages.push({
-            content,
-            fromSelf: false,
-            id
-          });
-          if (!(checkSelectedUser(user)) && !(user.hasNewMessage)) {
-            user.hasNewMessage = true;
-          }
-          const newArray = onlineUsers.filter((_, index)  => index !== i);
-          newArray.splice(i, 0, user);
-          setOnlineUsers(newArray);
-          break;
-        }
-      }
-    });
   }, [socket, onlineUsers, selectedUser]);
+
+  useEffect(() => {
+    socket.on("private message", ({ content, from, id }) => {
+      setArrivalMessage({
+        content,
+        from,
+        id,
+        fromSelf: false
+      })
+    });
+  }, [])
+
+  useEffect(() => {
+    const newArray = onlineUsers.map(user => {
+      if(user.userID === selectedUser.userID) {
+        user.hasNewMessage = false;
+        return user
+      }
+      return user;
+    })
+
+    setOnlineUsers(newArray);
+  },[selectedUser])
+
+  useEffect(() => {
+    if (arrivalMessage
+    && onlineUsers.some(({ userID }) => userID === arrivalMessage.from)) {
+      const indexUser = onlineUsers.findIndex(({ userID }) => userID === arrivalMessage.from);
+      const userObj = onlineUsers.find(({ userID }) => userID === arrivalMessage.from);
+      userObj.messages.push(arrivalMessage);
+
+      if (!(checkSelectedUser(userObj)) && !(userObj.hasNewMessage)) {
+        userObj.hasNewMessage = true;
+      }
+
+      const newArray = [...onlineUsers];
+      newArray.splice(indexUser, 1 , userObj);
+      setOnlineUsers(newArray);
+    }
+  }, [arrivalMessage])
 
   return (
     <div className="App">
